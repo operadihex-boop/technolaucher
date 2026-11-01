@@ -1,3 +1,4 @@
+
 name: Build Techno Launcher (Windows x64)
 
 on:
@@ -11,11 +12,19 @@ permissions:
 jobs:
   build-windows:
     runs-on: windows-2022
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v6
         with:
           submodules: recursive
+
+      - name: Fetch required NBT library
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "libraries/libnbtplusplus/CMakeLists.txt")) {
+            git clone --depth 1 https://github.com/PrismLauncher/libnbtplusplus.git libraries/libnbtplusplus
+          }
 
       - name: Set up dependencies
         uses: ./.github/actions/setup-dependencies
@@ -39,6 +48,7 @@ jobs:
           -DLauncher_HELP_URL=
 
       - name: Build
+        shell: pwsh
         run: cmake --build --preset windows_msvc --config Release --parallel
 
       - name: Install portable app
